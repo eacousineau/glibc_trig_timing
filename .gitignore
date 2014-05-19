@@ -1,0 +1,16 @@
+*~
+*.asv
+*.bak
+build/
+
+# pfdlatex generated files
+*.aux
+*.bbl
+*.blg
+*.lof
+*.lot
+*.log
+*.pdf
+*.synctex.gz
+*.toc
+*.out
