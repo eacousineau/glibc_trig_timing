@@ -41,7 +41,7 @@ int main(int argc, char** argv) {
     struct timeval time1, time2;
     gettimeofday(&time1, NULL);
     for (int i=0; i < 10000; i++) {
-        volatile double out = sin(value.dbl);
+        volatile double out = sinl(value.dbl);
     }
     gettimeofday(&time2, NULL);
 
