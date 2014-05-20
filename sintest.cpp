@@ -1,14 +1,30 @@
 // source: https://bugs.launchpad.net/ubuntu/+source/glibc/+bug/192134
+#include <time.h>
 #include <stdlib.h>
 #include <sstream>
 #include <iostream>
 #include <iomanip>
 #include <math.h>
 #include <sys/time.h>
+#include <stdio.h>
+#include <sched.h>
+#include <sys/mman.h>
+#include <sys/sysinfo.h>
 
 using namespace std;
 
+const int RT_PRIORITY = 49;
+const int NSEC_PER_SEC = 1000000000;
+
 int main(int argc, char** argv) {
+    
+    sched_param param;
+    param.__sched_priority = RT_PRIORITY;
+    if (sched_setscheduler(0, SCHED_FIFO, &param) == -1)
+    {
+        cerr << "sched_setscheduler failed" << endl;
+        return (EXIT_FAILURE);
+    }
 
     volatile union {
         double dbl;
@@ -38,7 +54,7 @@ int main(int argc, char** argv) {
         value.dbl = tmp;
     } else {
         cout << "usage: sintest 00 b0 6b e3 75 de ed 3f\n"
-                " sintest 0.93340582292648832662962377071381";
+                " sintest 0.93340582292648832662962377071381" << endl;
         return (EXIT_FAILURE);
     }
 
@@ -50,8 +66,8 @@ int main(int argc, char** argv) {
 
     cout << "start\n";
 
-    struct timeval time1, time2;
-    gettimeofday(&time1, NULL);
+    timespec t_start, t_end;
+    clock_gettime(CLOCK_MONOTONIC, &t_start);
     const int count = 10000;
     if (use_long)
     {
@@ -65,12 +81,12 @@ int main(int argc, char** argv) {
             volatile double out = sin(value.dbl);
         }
     }
-    gettimeofday(&time2, NULL);
+    clock_gettime(CLOCK_MONOTONIC, &t_end);
 
-    long long diftime = 1000000ll * (time2.tv_sec - time1.tv_sec) +
-                         (time2.tv_usec - time1.tv_usec);
+    long long diftime = NSEC_PER_SEC * (t_end.tv_sec - t_start.tv_sec) + (t_end.tv_nsec - t_start.tv_nsec);
+    double diff = diftime / double(NSEC_PER_SEC);
 
-    cout << "end: " << diftime / 1000000ll << '.' << setw(6) << setfill('0') << diftime % 1000000ll << " s" << endl;
+    cout << "end: " << diff << " s" << endl;
 
     return (EXIT_SUCCESS);
 }
