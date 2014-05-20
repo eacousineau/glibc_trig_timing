@@ -1,4 +1,4 @@
-# timing_test
+# glibc_trig_timing
 
 **Purpose**: Test run time of trigonometric functions.
 
@@ -9,7 +9,7 @@
 
 # References
 
-*   [Launchpad Bug #192134](https://bugs.launchpad.net/ubuntu/+source/glibc/+bug/192134) - Found by Ryan van Why
+*   [Launchpad Bug #192134](https://bugs.launchpad.net/ubuntu/+source/glibc/+bug/192134) - Referenced by Johnathan van Why
 
 # Instructions
 
