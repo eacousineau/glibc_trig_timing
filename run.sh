@@ -13,7 +13,7 @@ mkdir -p build
 good_values="$(
 python <<EOF
 from numpy import pi, linspace
-values = linspace(-1, 1, 11).tolist() + linspace(-pi, pi + 0.01, 13).tolist()
+values = linspace(-1, 1, 11).tolist() + linspace(-pi, pi, 13).tolist()
 print ' '.join(map(str, values))
 EOF
 )"
