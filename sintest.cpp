@@ -14,6 +14,15 @@ int main(int argc, char** argv) {
         double dbl;
         unsigned char hex[sizeof(double)];
     } value;
+    
+    bool use_long = false;
+    if (argc >= 2 && string(argv[1]) == "-l")
+    {
+        use_long = true;
+        // Shift arguments
+        --argc;
+        ++argv;
+    }
 
     if (argc == sizeof(double)+1) {
         for (int i=0; i < sizeof(double); i++) {
@@ -35,13 +44,26 @@ int main(int argc, char** argv) {
 
     cout.precision(32);
     cout << value.dbl << endl;
+    
+    if (use_long)
+        cout << "using sinl()\n";
 
     cout << "start\n";
 
     struct timeval time1, time2;
     gettimeofday(&time1, NULL);
-    for (int i=0; i < 10000; i++) {
-        volatile double out = sinl(value.dbl);
+    const int count = 10000;
+    if (use_long)
+    {
+        for (int i=0; i < count; i++) {
+            volatile double out = sinl(value.dbl);
+        }
+    }
+    else
+    {
+        for (int i=0; i < count; i++) {
+            volatile double out = sin(value.dbl);
+        }
     }
     gettimeofday(&time2, NULL);
 
