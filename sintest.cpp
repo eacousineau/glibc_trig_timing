@@ -31,13 +31,33 @@ int main(int argc, char** argv) {
         unsigned char hex[sizeof(double)];
     } value;
     
-    bool use_long = false;
-    if (argc >= 2 && string(argv[1]) == "-l")
+    const char *funcs[] = {"sin", "sinf", "sinl"};
+    int func_index = 0;
+    if (argc >= 2)
     {
-        use_long = true;
-        // Shift arguments
-        --argc;
-        ++argv;
+        string arg = argv[1];
+        bool do_shift = false;
+        if (arg == "sin")
+        {
+            func_index = 0;
+            do_shift = true;
+        }
+        if (arg == "sinf")
+        {
+            func_index = 1;
+            do_shift = true;
+        }
+        else if (arg == "sinl")
+        {
+            func_index = 2;
+            do_shift = true;
+        }
+        if (do_shift)
+        {
+            // Shift arguments
+            --argc;
+            ++argv;
+        }
     }
 
     if (argc == sizeof(double)+1) {
@@ -59,34 +79,38 @@ int main(int argc, char** argv) {
     }
 
     cout.precision(32);
-    cout << value.dbl << endl;
-    
-    if (use_long)
-        cout << "using sinl()\n";
 
-    cout << "start\n";
-
-    timespec t_start, t_end;
-    clock_gettime(CLOCK_MONOTONIC, &t_start);
+    timespec t_start;
     const int count = 10000;
-    if (use_long)
+    clock_gettime(CLOCK_MONOTONIC, &t_start);
+    switch (func_index)
     {
-        for (int i=0; i < count; i++) {
-            volatile double out = sinl(value.dbl);
-        }
+        case 0:
+            for (int i=0; i < count; i++)
+                volatile double out = sin(value.dbl);
+            break;
+        case 1:
+            for (int i=0; i < count; i++)
+                volatile double out = sinf(value.dbl);
+            break;
+        case 2:
+            for (int i=0; i < count; i++)
+                volatile double out = sinl(value.dbl);
+            break;
+        default:
+            cerr << "Invalid func_index: " << func_index << endl;
+            return (EXIT_FAILURE);
     }
-    else
-    {
-        for (int i=0; i < count; i++) {
-            volatile double out = sin(value.dbl);
-        }
-    }
+    timespec t_end;
     clock_gettime(CLOCK_MONOTONIC, &t_end);
 
     long long diftime = NSEC_PER_SEC * (t_end.tv_sec - t_start.tv_sec) + (t_end.tv_nsec - t_start.tv_nsec);
     double diff = diftime / double(NSEC_PER_SEC);
 
-    cout << "end: " << diff << " s" << endl;
+    cout
+        << "-   value: " << value.dbl << endl
+        << "    seconds: " << diff << endl;
+        // << "    func: " << funcs[func_index] << endl;
 
     return (EXIT_SUCCESS);
 }
